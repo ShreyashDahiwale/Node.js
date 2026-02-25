@@ -5,7 +5,10 @@ const User = require('./models/user');
 const cookieParser = require('cookie-parser');
 const {checkForAuthentication} = require('./middlewares/authentication');
 
+const Blog = require('./models/blog');
+
 const userRoute = require('./routes/user');
+const blogRoute = require('./routes/blog');
 
 const app = express();
 const PORT = 8000;
@@ -24,12 +27,15 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.resolve("./public")));
 
 
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+    const allBlogs = await Blog.find().sort({ createdAt: -1 });
     res.render("home", {
-        user: req.user
+        user: req.user,
+        blogs: allBlogs
     });
 })
 
 app.use("/user", userRoute);
+app.use("/blog", blogRoute);
 
 app.listen( PORT , () => console.log(`Server Started at PORT:${PORT}`));
